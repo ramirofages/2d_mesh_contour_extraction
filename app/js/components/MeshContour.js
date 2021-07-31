@@ -4,6 +4,7 @@ import {MeshLambertMaterial} from 'three'
 import {Color} from 'three'
 import {Path} from 'three'
 import {Debug} from 'ohzi-core'
+import EdgeLoopBuilder from './EdgeLoopBuilder';
 
 export default class MeshContour
 {
@@ -16,25 +17,43 @@ export default class MeshContour
     mesh.geometry.computeBoundingBox()
     this.bounding_box = mesh.geometry.boundingBox.clone();
 
-    let edges = [];
+    // let edges = [];
 
-    for(let i=0; i< points.length/3; i+= 2)
-    {
-      let p0 = new Vector3();
-      p0.x = points[i*3+0];
-      p0.y = points[i*3+1];
-      p0.z = points[i*3+2];
+    // for(let i=0; i< points.length/3; i+= 2)
+    // {
+    //   let p0 = new Vector3();
+    //   p0.x = points[i*3+0];
+    //   p0.y = points[i*3+1];
+    //   p0.z = points[i*3+2];
 
-      let p1 = new Vector3();
-      p1.x = points[i*3+3];
-      p1.y = points[i*3+4];
-      p1.z = points[i*3+5];
+    //   let p1 = new Vector3();
+    //   p1.x = points[i*3+3];
+    //   p1.y = points[i*3+4];
+    //   p1.z = points[i*3+5];
 
-      edges.push({
-        from: new Vector2(p0.x, p0.z),
-        to: new Vector2(p1.x, p1.z)
-      })
-    }
+    //   edges.push({
+    //     from: new Vector2(p0.x, p0.z),
+    //     to: new Vector2(p1.x, p1.z)
+    //   })
+    // }
+
+    // points = [
+    //   0,0,0,
+    //   1,0,0,
+
+    //   1,0,0,
+    //   1,0,1,
+
+    //   1,0,1,
+    //   0,0,1,
+
+    //   0,0,1,
+    //   0,0,0
+
+    // ]
+
+    let edge_loop_builder = new EdgeLoopBuilder();
+    this.edge_groups = edge_loop_builder.get_loops_from_point_pair_array(points);
     // edges = [
     //   {
     //     from: new Vector2(0,0),
@@ -54,7 +73,7 @@ export default class MeshContour
     //     to: new Vector2(0,0)
     //   }
     // ]
-    this.edges = edges;
+    // this.edges = edges;
 
 
   }
@@ -65,62 +84,14 @@ export default class MeshContour
   }
 
 
-  get_contour_groups(raw_edges)
-  {
-    let edges = [...raw_edges];
-
-    let edge_groups = [];
-
-    
-
-    
-    while(edges.length > 0)
-    {
-      let sorted_edges = [];
-      sorted_edges.push(edges.shift())
-
-      let target_pos = sorted_edges[0].to
-      let index = this.get_target_edge_index(target_pos, edges);
-
-      let accumulated_length = sorted_edges[0].from.distanceTo(sorted_edges[0].to);
-
-      let center = new Vector2();
-
-      while(index !== undefined && edges.length > 0)
-      {
-        center.add(edges[index].from);
-
-        accumulated_length += edges[index].from.distanceTo(edges[index].to);
-        sorted_edges.push(edges[index]);
-        edges.splice(index, 1);
-
-        target_pos = sorted_edges[sorted_edges.length-1].to
-        index = this.get_target_edge_index(target_pos, edges);
-      }
-
-      edge_groups.push({
-        length: accumulated_length,
-        edges: sorted_edges,
-        center: center.multiplyScalar(1/sorted_edges.length)
-      });
-
-    }
-
-    edge_groups.sort((a,b)=>{
-      return b.length - a.length;
-    })
-
-    return edge_groups;
-  }
-
-  get_extruded_mesh(depth = 1, scale_offset = 0)
+  get_extruded_mesh(depth = 1, scale_offset = 0, neighboor_loops = [])
   {
     let extrudeSettings = {
       steps: 1,
       depth: depth,
       bevelEnabled: false
     };
-    let geometry = new ExtrudeGeometry( this.get_shape(scale_offset), extrudeSettings );
+    let geometry = new ExtrudeGeometry( this.get_shape(scale_offset, neighboor_loops), extrudeSettings );
     geometry.rotateX(Math.PI/2)
     geometry.translate(0, depth, 0);
     // geometry.translate(0, depth + this.bounding_box.min.y, 0);
@@ -133,10 +104,12 @@ export default class MeshContour
   
   }
 
-  get_shape(offset_scale = 0)
+  get_shape(offset_scale = 0, neighboor_loops = [])
   {
-    let sorted_edge_groups = this.get_contour_groups(this.edges);
-    this.apply_scale_to_contour_groups(sorted_edge_groups, offset_scale);
+    let sorted_edge_groups = this.edge_groups;
+    sorted_edge_groups[0].make_CCW();
+    sorted_edge_groups[0].shrink(offset_scale, neighboor_loops);
+
     let sorted_edges = sorted_edge_groups[0].edges;
     let shape = new Shape();
 
@@ -172,78 +145,6 @@ export default class MeshContour
     return shape;
   }
 
-  apply_scale_to_contour_groups(contour_groups, offset_scale=0)
-  {
-
-    for(let i=0; i< contour_groups.length; i++)
-    {
-      let edges = contour_groups[i].edges;
-      let new_edges = [];
-      for(let j=0; j < edges.length; j++)
-      {
-        let e0 = edges[j];
-        let e_next = undefined;
-        let e_prev = undefined;
-        // console.log("--------"+j+"-------")
-
-        if(j === edges.length-1)
-        {
-          // console.log("next - primer edge");
-          e_next = edges[0];
-        }
-        else
-        {
-          // console.log("next - siguiente edge");
-          e_next = edges[j+1];
-        }
-
-        if(j === 0)
-        {
-          // console.log("prev - ultimo edge");
-          e_prev = edges[edges.length-1];
-        }
-        else
-        {
-          // console.log("prev - anterior edge");
-          e_prev = edges[j-1];
-        }
-        // console.log("----------------------")
-        let n0 = e0.to.clone().sub(e0.from).normalize();
-        n0.set(n0.y, -n0.x);
-
-        let n_next = e_next.to.clone().sub(e_next.from).normalize();
-        n_next.set(n_next.y, -n_next.x);
-
-        let n_prev = e_prev.to.clone().sub(e_prev.from).normalize();
-        n_prev.set(n_prev.y, -n_prev.x);
-
-        let n_avg_next = n0.clone().add(n_next).multiplyScalar(0.5);
-        let n_avg_prev = n0.clone().add(n_prev).multiplyScalar(0.5);
-
-        new_edges.push({
-          from: e0.from.clone().add(n_avg_prev.multiplyScalar(offset_scale)),
-          to: e0.to.clone().add(n_avg_next.multiplyScalar(offset_scale))
-        })
-        // e0.from.add(n_avg_prev.multiplyScalar(offset_scale))
-        // e0.to.add(n_avg_next.multiplyScalar(offset_scale))
-      }
-      contour_groups[i].edges = new_edges;
-    }
-  }
-
-  get_target_edge_index(target_position, edges)
-  {
-    for(let i=0; i< edges.length; i++)
-    {
-      let current_edge = edges[i];
-
-      if(target_position.distanceToSquared(current_edge.from) < 0.0001*0.0001)
-      {
-        return i;
-      }
-    }
-    return undefined;
-  }
 
   show_contour()
   {

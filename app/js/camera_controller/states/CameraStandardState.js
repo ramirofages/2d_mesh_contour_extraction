@@ -52,7 +52,7 @@ export default class CameraStandardState extends CameraViewState
       return;
     }
 
-    camera_controller.reference_zoom += Input.scroll_delta * 0.5;
+    camera_controller.reference_zoom += Input.scroll_delta * camera_controller.reference_zoom/10;
 
     // camera_controller.camera.fov += Input.scroll_delta * 2;
     // camera_controller.camera.fov = TMath.clamp(camera_controller.camera.fov, 3, 80);
