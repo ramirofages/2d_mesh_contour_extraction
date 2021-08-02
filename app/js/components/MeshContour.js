@@ -17,26 +17,6 @@ export default class MeshContour
     mesh.geometry.computeBoundingBox()
     this.bounding_box = mesh.geometry.boundingBox.clone();
 
-    // let edges = [];
-
-    // for(let i=0; i< points.length/3; i+= 2)
-    // {
-    //   let p0 = new Vector3();
-    //   p0.x = points[i*3+0];
-    //   p0.y = points[i*3+1];
-    //   p0.z = points[i*3+2];
-
-    //   let p1 = new Vector3();
-    //   p1.x = points[i*3+3];
-    //   p1.y = points[i*3+4];
-    //   p1.z = points[i*3+5];
-
-    //   edges.push({
-    //     from: new Vector2(p0.x, p0.z),
-    //     to: new Vector2(p1.x, p1.z)
-    //   })
-    // }
-
     // points = [
     //   0,0,0,
     //   1,0,0,
@@ -93,8 +73,8 @@ export default class MeshContour
     };
     let geometry = new ExtrudeGeometry( this.get_shape(scale_offset, neighboor_loops), extrudeSettings );
     geometry.rotateX(Math.PI/2)
-    geometry.translate(0, depth, 0);
-    // geometry.translate(0, depth + this.bounding_box.min.y, 0);
+    // geometry.translate(0, depth, 0);
+    geometry.translate(0, depth + this.bounding_box.min.y, 0);
 
     let mat = new MeshLambertMaterial({color: "#FF0000"})
     mat.color = this.material.color;
@@ -109,6 +89,11 @@ export default class MeshContour
     let sorted_edge_groups = this.edge_groups;
     sorted_edge_groups[0].make_CCW();
     sorted_edge_groups[0].shrink(offset_scale, neighboor_loops);
+
+    for(let i=1; i<sorted_edge_groups.length; i++)
+    {
+      sorted_edge_groups[i].make_CW();
+    }
 
     let sorted_edges = sorted_edge_groups[0].edges;
     let shape = new Shape();

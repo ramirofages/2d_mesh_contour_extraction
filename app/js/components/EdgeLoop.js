@@ -90,7 +90,7 @@ export default class EdgeLoop
       let e = edges[i];
       let is_close_to_neighboor = this.is_edge_close_to_neighboors(e, neightboor_loops)
       let n0 = e.to.clone().sub(e.from).normalize().multiplyScalar(offset);
-      n0.set(-n0.y, n0.x);
+      n0.set(-n0.y, n0.x); // pointing inwards
 
       if(is_close_to_neighboor === true)
       {
