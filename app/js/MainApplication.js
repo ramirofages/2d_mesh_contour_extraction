@@ -27,6 +27,11 @@ export default class MainApplication extends BaseApplication
     Graphics._renderer.outputEncoding = sRGBEncoding;
 
     DatGui.init();
+
+    document.addEventListener('contextmenu', (event) =>
+    {
+      event.preventDefault();
+    }, false);
   }
 
   on_enter()
