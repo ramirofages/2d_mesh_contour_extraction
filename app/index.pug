@@ -13,26 +13,11 @@ html
     link(rel="icon", type="image/png", href="assets/images/common/favicon.png")
     link(href='css/application.scss', rel="stylesheet")
 
-    if (process.env.NODE_ENV !== 'development')
-      include views/common/conversions.html
-
   body
-    include views/common/author
-
     .container
       .canvas-container
         canvas.main-canvas
 
-      //- __SECTIONS__
-      include views/home/home
-
-      //- __COMPONENTS__
-
-      .reusable-elements
-
-      include views/loader/loader
 
     script(src='init.js')
 
-    if (process.env.NODE_ENV !== 'development')
-      include views/common/conversions_body.html
