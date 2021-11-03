@@ -33,7 +33,9 @@ export default class MeshContour
     // ]
 
     let edge_loop_builder = new EdgeLoopBuilder();
-    this.edge_groups = edge_loop_builder.get_loops_from_point_pair_array(points);
+    this.edge_loops = edge_loop_builder.get_loops_from_point_pair_array(points);
+
+
     // edges = [
     //   {
     //     from: new Vector2(0,0),
@@ -58,20 +60,34 @@ export default class MeshContour
 
   }
 
-  scale(value)
+  shrink_away_from_contours(offset_scale = 0, contours = [])
   {
+    let contour_loops = [];
 
+    for(let i=0; i< contours.length; i++)
+    {
+      if(contours[i] !== this)
+      {
+        contour_loops.push(contours[i].edge_loops[0])
+      }
+    }
+
+    this.shrink_away_from_contour_loops(offset_scale, contour_loops)
   }
 
+  shrink_away_from_contour_loops(offset_scale = 0, contour_loops = [])
+  {
+    this.edge_loops[0].shrink_away_from_loops(offset_scale, contour_loops);
+  }
 
-  get_extruded_mesh(depth = 1, scale_offset = 0, neighboor_loops = [])
+  get_extruded_mesh(depth = 1)
   {
     let extrudeSettings = {
       steps: 1,
       depth: depth,
       bevelEnabled: false
     };
-    let geometry = new ExtrudeGeometry( this.get_shape(scale_offset, neighboor_loops), extrudeSettings );
+    let geometry = new ExtrudeGeometry( this.get_shape(), extrudeSettings );
     geometry.rotateX(Math.PI/2)
     // geometry.translate(0, depth, 0);
     geometry.translate(0, depth + this.bounding_box.min.y, 0);
@@ -84,18 +100,11 @@ export default class MeshContour
   
   }
 
-  get_shape(offset_scale = 0, neighboor_loops = [])
+  get_shape()
   {
-    let sorted_edge_groups = this.edge_groups;
-    sorted_edge_groups[0].make_CCW();
-    sorted_edge_groups[0].shrink(offset_scale, neighboor_loops);
+    let sorted_edge_loops = this.edge_loops;
 
-    for(let i=1; i<sorted_edge_groups.length; i++)
-    {
-      sorted_edge_groups[i].make_CW();
-    }
-
-    let sorted_edges = sorted_edge_groups[0].edges;
+    let sorted_edges = sorted_edge_loops[0].edges;
     let shape = new Shape();
 
     let edge = sorted_edges[0];
@@ -109,10 +118,10 @@ export default class MeshContour
     }
 
     let holes = [];
-    for(let i = 1; i< sorted_edge_groups.length; i++)
+    for(let i = 1; i< sorted_edge_loops.length; i++)
     {
       let hole_shape = new Shape();
-      let edges = sorted_edge_groups[i].edges; 
+      let edges = sorted_edge_loops[i].edges; 
 
       let edge = edges[edges.length-1];
       hole_shape.moveTo(edge.to.x, edge.to.y);

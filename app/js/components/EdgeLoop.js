@@ -81,14 +81,14 @@ export default class EdgeLoop
      return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
   }
 
-  shrink(offset = 0, neightboor_loops = [])
+  shrink_away_from_loops(offset = 0, loops = [])
   {
     let edges = this.edges;
 
     for(let i=0; i < edges.length; i++)
     {
       let e = edges[i];
-      let is_close_to_neighboor = this.is_edge_close_to_neighboors(e, neightboor_loops)
+      let is_close_to_neighboor = this.is_edge_close_to_neighboors(e, loops)
       let n0 = e.to.clone().sub(e.from).normalize().multiplyScalar(offset);
       n0.set(-n0.y, n0.x); // pointing inwards
 
@@ -123,18 +123,18 @@ export default class EdgeLoop
     }
   }
 
-  is_edge_close_to_neighboors(edge, neightboor_loops)
+  is_edge_close_to_neighboors(edge, neighbour_loops)
   {
-    for(let i=0; i< neightboor_loops.length; i++)
+    for(let i=0; i< neighbour_loops.length; i++)
     {
-      let n = neightboor_loops[i];
+      let n = neighbour_loops[i];
       if(n !== this && this.is_edge_close_to_neighboor(edge, n.raw_edges))
         return true;
     }
     return false;
   }
 
-  is_edge_close_to_neighboor(edge, neightboor_edges)
+  is_edge_close_to_neighboor(edge, neighbourboor_edges)
   {
     let normal = edge.to.clone().sub(edge.from).normalize().multiplyScalar(0.05);
     normal.set(normal.y, -normal.x);
@@ -145,9 +145,9 @@ export default class EdgeLoop
     }
     
 
-    for(let i=0; i< neightboor_edges.length; i++)
+    for(let i=0; i< neighbourboor_edges.length; i++)
     {
-      let n_e = neightboor_edges[i];
+      let n_e = neighbourboor_edges[i];
       let result = this.intersect_lines( edge_normal.from, 
                                          edge_normal.to, 
                                           n_e.from, 

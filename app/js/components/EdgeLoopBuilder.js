@@ -29,7 +29,17 @@ export default class EdgeLoopBuilder
       })
     }
 
-    return this.build_loops_from_edges(edges);
+    let loops = this.build_loops_from_edges(edges);
+    
+    for(let i=0; i< loops.length; i++)
+    {
+      if(i===0)
+        loops[i].make_CCW();
+      else
+        loops[i].make_CW();
+    }
+
+    return loops;
   }
 
   build_loops_from_edges(raw_edges)

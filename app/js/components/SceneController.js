@@ -54,7 +54,7 @@ class SceneController
       {
         let mesh_contour = new MeshContour(child);
         neighboor_meshes.push(mesh_contour);
-        neighboor_loops.push(mesh_contour.edge_groups[0]);
+        neighboor_loops.push(mesh_contour.edge_loops[0]);
         // let extruded_mesh = mesh_contour.get_extruded_mesh(1, 0.2);
         // SceneManager.current.add(extruded_mesh);
         // extruded_mesh.position.y = i*0.1;
@@ -63,7 +63,8 @@ class SceneController
 
     for(let i=0; i< neighboor_meshes.length; i++)
     {
-      let extruded_mesh = neighboor_meshes[i].get_extruded_mesh(1, 0.2, neighboor_loops);
+      neighboor_meshes[i].shrink_away_from_contours(0.2, neighboor_meshes)
+      let extruded_mesh = neighboor_meshes[i].get_extruded_mesh(1);
       SceneManager.current.add(extruded_mesh);
     }
 
