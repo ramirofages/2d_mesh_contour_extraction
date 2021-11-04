@@ -6,8 +6,10 @@ import { SceneManager } from 'ohzi-core';
 import { ResourceContainer } from 'ohzi-core';
 import { Screen } from 'ohzi-core';
 import { Graphics } from 'ohzi-core';
+import { MeshBatcher } from 'ohzi-core';
 
 import { Color } from 'three';
+import { SphereBufferGeometry } from 'three';
 import { Shape } from 'three';
 import { Vector3 } from 'three';
 import { Vector2 } from 'three';
@@ -42,44 +44,39 @@ class SceneController
     SceneManager.current.add(new DirectionalLight());
 
 
-    let floor_plan = ResourceContainer.get('plan').scene
+    // let floor_plan = ResourceContainer.get('plan').scene
 
-    let neighboor_loops = [];
-    let neighboor_meshes = [];
-    let units = floor_plan.getObjectByName('Units001')
-    for(let i=0; i< units.children.length; i++)
-    {
-      let child = units.children[i];
-      if(child.geometry)
-      {
-        let mesh_contour = new MeshContour(child);
-        neighboor_meshes.push(mesh_contour);
-        neighboor_loops.push(mesh_contour.edge_loops[0]);
-        // let extruded_mesh = mesh_contour.get_extruded_mesh(1, 0.2);
-        // SceneManager.current.add(extruded_mesh);
-        // extruded_mesh.position.y = i*0.1;
-      }
-    }
+    // let neighboor_meshes = [];
+    // let units = floor_plan.getObjectByName('Units001')
+    // for(let i=0; i< units.children.length; i++)
+    // {
+    //   let child = units.children[i];
+    //   if(child.geometry)
+    //   {
+    //     let mesh_contour = new MeshContour(child);
+    //     neighboor_meshes.push(mesh_contour);
+    //   }
+    // }
 
-    for(let i=0; i< neighboor_meshes.length; i++)
-    {
-      neighboor_meshes[i].shrink_away_from_contours(0.2, neighboor_meshes)
-      let extruded_mesh = neighboor_meshes[i].get_extruded_mesh(1);
-      SceneManager.current.add(extruded_mesh);
-    }
+    // for(let i=0; i< neighboor_meshes.length; i++)
+    // {
+    //   neighboor_meshes[i].shrink_away_from_contours(0.2, neighboor_meshes)
+    //   let extruded_mesh = neighboor_meshes[i].get_extruded_mesh(1);
+    //   SceneManager.current.add(extruded_mesh);
+    // }
 
-    let slabs = floor_plan.getObjectByName('FloorSlabs');
-    for(let i=0; i< slabs.children.length; i++)
-    {
-      let child = slabs.children[i];
-      if(child.geometry)
-      {
-        let mesh_contour = new MeshContour(child);
-        // mesh_contour.show_contour()
-        let extruded_mesh = mesh_contour.get_extruded_mesh(0.1);
-        SceneManager.current.add(extruded_mesh);
-      }
-    }
+    // let slabs = floor_plan.getObjectByName('FloorSlabs');
+    // for(let i=0; i< slabs.children.length; i++)
+    // {
+    //   let child = slabs.children[i];
+    //   if(child.geometry)
+    //   {
+    //     let mesh_contour = new MeshContour(child);
+    //     // mesh_contour.show_contour()
+    //     let extruded_mesh = mesh_contour.get_extruded_mesh(0.1);
+    //     SceneManager.current.add(extruded_mesh);
+    //   }
+    // }
 
     // let edges0 = [];
     // edges0.push({
@@ -193,6 +190,19 @@ class SceneController
     // Debug.draw_line(edge1, "#F0FFFF");
     // Debug.draw_line(edge2, "#F0FFFF");
 
+
+    // let sph1 = new Mesh(new SphereBufferGeometry(1));
+    // sph1.geometry.translate(3,0,0);
+    // sph1.name = 'sph1'
+
+    // let sph2 = new Mesh(new SphereBufferGeometry(1));
+    // sph2.geometry.translate(-3,0,0);
+    // sph2.name = 'sph2'
+
+
+    // let mesh = new MeshBatcher().batch([sph1, sph2], new MeshBasicMaterial({color: "#FF0000"}));
+    // SceneManager.current.add(mesh);
+    // console.log(mesh)
   }
 
   intersects_line (p1a, p1b, p2a, p2b) {
@@ -239,9 +249,9 @@ class SceneController
 
     this.camera_controller.min_zoom = 1;
     this.camera_controller.max_zoom = 100;
-    this.camera_controller.reference_zoom = 70;
+    this.camera_controller.reference_zoom = 5;
     // this.camera_controller.reference_position.set(-30, 0, -10);
-    this.camera_controller.set_rotation(90, 0);
+    this.camera_controller.set_rotation(10, 0);
   }
 }
 

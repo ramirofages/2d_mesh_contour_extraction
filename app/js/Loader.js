@@ -4,8 +4,6 @@ import { ResourceBatch } from 'ohzi-core';
 import { ViewManager } from 'ohzi-core';
 import { MathUtilities } from 'ohzi-core';
 
-import GeneralLoader from './loaders/GeneralLoader';
-
 export default class Loader extends BaseApplication
 {
   constructor(api)

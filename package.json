@@ -8,7 +8,7 @@
   "module": "./build/AppApi.js",
   "dependencies": {
     "dat.gui": "^0.7.7",
-    "ohzi-core": "5.16.5"
+    "ohzi-core": "5.18.0"
   },
   "scripts": {
     "start": "parcel ./app/index.pug --no-cache",
@@ -18,7 +18,7 @@
     "create-tag": "cross-var git tag -a \"v$npm_package_version\" -m \"Release Version $npm_package_version\" && cross-var git push origin \"v$npm_package_version\""
   },
   "private": true,
-  "workspaces": ["app", "core"],
+  "workspaces": ["core"],
   "devDependencies": {
     "@parcel/transformer-glsl": "2.0.0-beta.3.1",
     "@parcel/transformer-image": "2.0.0-beta.3.1",
