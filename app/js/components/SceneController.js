@@ -19,10 +19,14 @@ import { Mesh, MeshBasicMaterial, ExtrudeGeometry } from 'three';
 import { AmbientLight } from 'three';
 import { DirectionalLight } from 'three';
 // import { SpotLight } from 'three';
+import {GLTFExporter} from 'three/examples/jsm/exporters/GLTFExporter.js';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+
 
 import CameraController from '../camera_controller/CameraController';
 import MeshContour from './MeshContour';
 import EdgeLoop from './EdgeLoop';
+import FloorPlanGenerator3D from './FloorPlanGenerator3D';
 
 class SceneController
 {
@@ -43,166 +47,15 @@ class SceneController
     SceneManager.current.add(new AmbientLight());
     SceneManager.current.add(new DirectionalLight());
 
+    let floor_plan_generator = new FloorPlanGenerator3D();
 
-    // let floor_plan = ResourceContainer.get('plan').scene
+    let floor_plan_scene = ResourceContainer.get('plan').scene
 
-    // let neighboor_meshes = [];
-    // let units = floor_plan.getObjectByName('Units001')
-    // for(let i=0; i< units.children.length; i++)
-    // {
-    //   let child = units.children[i];
-    //   if(child.geometry)
-    //   {
-    //     let mesh_contour = new MeshContour(child);
-    //     neighboor_meshes.push(mesh_contour);
-    //   }
-    // }
+    let floor_plan = floor_plan_generator.build_from_scene(floor_plan_scene);
+    SceneManager.current.add(floor_plan);
 
-    // for(let i=0; i< neighboor_meshes.length; i++)
-    // {
-    //   neighboor_meshes[i].shrink_away_from_contours(0.2, neighboor_meshes)
-    //   let extruded_mesh = neighboor_meshes[i].get_extruded_mesh(1);
-    //   SceneManager.current.add(extruded_mesh);
-    // }
+    this.floor_plan = floor_plan;
 
-    // let slabs = floor_plan.getObjectByName('FloorSlabs');
-    // for(let i=0; i< slabs.children.length; i++)
-    // {
-    //   let child = slabs.children[i];
-    //   if(child.geometry)
-    //   {
-    //     let mesh_contour = new MeshContour(child);
-    //     // mesh_contour.show_contour()
-    //     let extruded_mesh = mesh_contour.get_extruded_mesh(0.1);
-    //     SceneManager.current.add(extruded_mesh);
-    //   }
-    // }
-
-    // let edges0 = [];
-    // edges0.push({
-    //   from: new Vector2(0,0),
-    //   to: new Vector2(1,0)
-    // })
-    // edges0.push({
-    //   from: new Vector2(1,0),
-    //   to: new Vector2(1,1)
-    // })
-    // edges0.push({
-    //   from: new Vector2(1,1),
-    //   to: new Vector2(0,1)
-    // })
-    // edges0.push({
-    //   from: new Vector2(0,1),
-    //   to: new Vector2(0,0)
-    // })
-
-    // let edges1 = [];
-    // edges1.push({
-    //   from: new Vector2(1,0),
-    //   to: new Vector2(2,0)
-    // })
-    // edges1.push({
-    //   from: new Vector2(2,0),
-    //   to: new Vector2(2,1)
-    // })
-    // edges1.push({
-    //   from: new Vector2(2,1),
-    //   to: new Vector2(1,1)
-    // })
-    // edges1.push({
-    //   from: new Vector2(1,1),
-    //   to: new Vector2(1,0)
-    // })
-
-    // let edge_loop0 = new EdgeLoop(edges0);
-    // let edge_loop1 = new EdgeLoop(edges1);
-
-
-    // edge_loop0.shrink(0.1, [edge_loop0, edge_loop1])
-    // edge_loop0.draw()
-
-    // edge_loop1.shrink(0.1, [edge_loop0, edge_loop1])
-    // edge_loop1.draw()
-
-
-    // let edge0 = [new Vector3(0,0,0), new Vector3(1,0,0)]
-    // let edge1 = [new Vector3(1,0,0), new Vector3(1,0,1)]
-    // let edge2 = [new Vector3(1,0,1), new Vector3(0,0,0)]
-
-    
-
-    // Debug.draw_line(edge0, "#FF0000")
-    // Debug.draw_line(edge1, "#FF0000")
-    // Debug.draw_line(edge2, "#FF0000")
-
-    // //displace
-
-    // let n0 = edge0[1].clone().sub(edge0[0]).normalize().multiplyScalar(0.1);
-    // n0.set(-n0.z, 0, n0.x);
-    // let n1 = edge1[1].clone().sub(edge1[0]).normalize().multiplyScalar(0.1);
-    // n1.set(-n1.z, 0, n1.x);
-    // let n2 = edge2[1].clone().sub(edge2[0]).normalize().multiplyScalar(0.1);
-    // n2.set(-n2.z, 0, n2.x);
-
-    // edge0[0].add(n0);
-    // edge0[1].add(n0);
-
-    // edge1[0].add(n1);
-    // edge1[1].add(n1);
-
-    // edge2[0].add(n2);
-    // edge2[1].add(n2);
-
-    // // Debug.draw_line(edge0, "#00AF00");
-    // // Debug.draw_line(edge1, "#00AF00");
-    // // Debug.draw_line(edge2, "#00AF00");
-
-    // let result = this.intersects_line(edge0[0], edge0[1], edge1[0], edge1[1]);
-    // if(result)
-    // {
-    //   edge0[1].set(result.x, 0, result.y);
-    //   edge1[0].set(result.x, 0, result.y);
-    // }
-
-    // result = this.intersects_line(edge1[0], edge1[1], edge2[0], edge2[1]);
-    // if(result)
-    // {
-    //   edge1[1].set(result.x, 0, result.y);
-    //   edge2[0].set(result.x, 0, result.y);
-    // }
-
-    // result = this.intersects_line(edge2[0], edge2[1], edge0[0], edge0[1]);
-    // if(result)
-    // {
-    //   edge2[1].set(result.x, 0, result.y);
-    //   edge0[0].set(result.x, 0, result.y);
-    // }
-
-    // edge0[0].y = 0.01;
-    // edge0[1].y = 0.01;
-
-    // edge1[0].y = 0.01;
-    // edge1[1].y = 0.01;
-
-    // edge2[0].y = 0.01;
-    // edge2[1].y = 0.01;
-    // Debug.draw_line(edge0, "#F0FFFF");
-    // Debug.draw_line(edge1, "#F0FFFF");
-    // Debug.draw_line(edge2, "#F0FFFF");
-
-
-    // let sph1 = new Mesh(new SphereBufferGeometry(1));
-    // sph1.geometry.translate(3,0,0);
-    // sph1.name = 'sph1'
-
-    // let sph2 = new Mesh(new SphereBufferGeometry(1));
-    // sph2.geometry.translate(-3,0,0);
-    // sph2.name = 'sph2'
-
-
-    // let mesh = new MeshBatcher().batch([sph1, sph2], new MeshBasicMaterial({color: "#FF0000"}));
-    // SceneManager.current.add(mesh);
-    // console.log(mesh)
   }
 
   intersects_line (p1a, p1b, p2a, p2b) {
@@ -252,6 +105,24 @@ class SceneController
     this.camera_controller.reference_zoom = 5;
     // this.camera_controller.reference_position.set(-30, 0, -10);
     this.camera_controller.set_rotation(10, 0);
+  }
+
+  export_scene(callback)
+  {
+    const exporter = new GLTFExporter();
+    
+    let export_options = {
+      onlyVisible : false
+    }
+
+    exporter.parse(this.floor_plan, function ( gltf ) {
+
+        callback(JSON.stringify(gltf));
+
+      // new GLTFLoader().parse(JSON.stringify(gltf), '', (result)=>{
+      //   callback(result);
+      // })
+    }, export_options);
   }
 }
 

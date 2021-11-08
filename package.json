@@ -5,14 +5,14 @@
   "author": "OHZI Interactive",
   "version": "5.10.0",
   "license": "MIT",
-  "module": "./build/AppApi.js",
+  "module": "./build/FloorPlanViewer.js",
   "dependencies": {
     "dat.gui": "^0.7.7",
     "ohzi-core": "5.18.0"
   },
   "scripts": {
     "start": "parcel ./app/index.pug --no-cache",
-    "build": "parcel build ./app/js/AppApi.js",
+    "build": "parcel build ./app/js/FloorPlanViewer.js",
     "basisu": "basisu",
     "create-view": "node ./tasks/create_view/create_view.mjs",
     "create-tag": "cross-var git tag -a \"v$npm_package_version\" -m \"Release Version $npm_package_version\" && cross-var git push origin \"v$npm_package_version\""

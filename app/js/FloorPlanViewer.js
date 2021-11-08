@@ -11,7 +11,7 @@ import package_json from '../../package.json';
 // APP
 import MainApplication from './MainApplication';
 
-class ApplicationAPI
+class FloorPlanViewer
 {
   init(settings)
   {
@@ -58,7 +58,12 @@ class ApplicationAPI
   {
     this.application.export_scene();
   }
+
+  load_floor_plan(name, path)
+  {
+    this.application.load_floor_plan(name, path);
+  }
 }
 
-const api = new ApplicationAPI();
-export { api };
+// const floor_plan_viewer_api = new FloorPlanViewerAPI();
+export { FloorPlanViewer };

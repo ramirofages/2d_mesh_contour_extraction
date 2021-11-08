@@ -10,7 +10,6 @@ import { Configuration } from 'ohzi-core';
 import DatGui from './components/DatGui';
 import SceneController from './components/SceneController';
 
-import * as GLTFExporter from 'three/examples/jsm/exporters/GLTFExporter.js';
 
 export default class MainApplication extends BaseApplication
 {
@@ -43,15 +42,13 @@ export default class MainApplication extends BaseApplication
     this.scene_controller.update();
   }
 
-  export_scene()
+  export_scene(callback)
   {
-    // Instantiate a exporter
-    const exporter = new GLTFExporter();
+    return this.scene_controller.export_scene(callback);
+  }
 
-    // Parse the input and generate the glTF output
-    exporter.parse(SceneManager.current, function ( gltf ) {
-      console.log( gltf );
-      downloadJSON( gltf );
-    }, options );
+  load_floor_plan(name, path)
+  {
+    
   }
 }

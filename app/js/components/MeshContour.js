@@ -10,6 +10,7 @@ export default class MeshContour
 {
   constructor(mesh)
   {
+    this.name = mesh.name;
     this.material = mesh.material;
     const edges_geo = new EdgesGeometry( mesh.geometry );
     let points = edges_geo.attributes.position.array;
@@ -96,8 +97,10 @@ export default class MeshContour
     mat.color = this.material.color;
 
     let material = new MeshBasicMaterial( { color: 0x00ff00 } );
-    return new Mesh( geometry, mat ) ;
-  
+
+    let mesh = new Mesh( geometry, mat );
+    mesh.name = this.name;
+    return mesh;
   }
 
   get_shape()
