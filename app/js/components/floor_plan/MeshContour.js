@@ -3,6 +3,7 @@ import {MeshBasicMaterial, Mesh, Vector3, Vector2} from 'three'
 import {MeshLambertMaterial} from 'three'
 import {Color} from 'three'
 import {Path} from 'three'
+import {Box3} from 'three'
 import {Debug} from 'ohzi-core'
 import EdgeLoopBuilder from './EdgeLoopBuilder';
 
@@ -10,55 +11,40 @@ export default class MeshContour
 {
   constructor(mesh)
   {
-    this.name = mesh.name;
-    this.material = mesh.material;
-    const edges_geo = new EdgesGeometry( mesh.geometry );
-    let points = edges_geo.attributes.position.array;
+    this.name          = "";
+    this.material      = undefined;
+    this.original_mesh = undefined;
+
+    this.bounding_box = new Box3();
+
+    this.edge_loops = [];
+
+    if(mesh)
+    {
+      this.set_from_mesh(mesh);
+    }
+  }
+
+  reset()
+  {
+    for (let i = 0; i < this.edge_loops.length; i++) {
+      this.edge_loops[i].reset();
+    }
+  }
+
+  set_from_mesh(mesh)
+  {
+    this.name          = mesh.name;
+    this.material      = mesh.material;
+    this.original_mesh = mesh;
+    const edges_geo    = new EdgesGeometry( mesh.geometry );
+    let points         = edges_geo.attributes.position.array;
 
     mesh.geometry.computeBoundingBox()
     this.bounding_box = mesh.geometry.boundingBox.clone();
 
-    // points = [
-    //   0,0,0,
-    //   1,0,0,
-
-    //   1,0,0,
-    //   1,0,1,
-
-    //   1,0,1,
-    //   0,0,1,
-
-    //   0,0,1,
-    //   0,0,0
-
-    // ]
-
     let edge_loop_builder = new EdgeLoopBuilder();
     this.edge_loops = edge_loop_builder.get_loops_from_point_pair_array(points);
-
-
-    // edges = [
-    //   {
-    //     from: new Vector2(0,0),
-    //     to: new Vector2(1,0)
-    //   },
-    //   {
-    //     from: new Vector2(1,0),
-    //     to: new Vector2(1,1)
-    //   },
-
-    //   {
-    //     from: new Vector2(1,1),
-    //     to: new Vector2(0,1)
-    //   },
-    //   {
-    //     from: new Vector2(0,1),
-    //     to: new Vector2(0,0)
-    //   }
-    // ]
-    // this.edges = edges;
-
-
   }
 
   shrink_away_from_contours(offset_scale = 0, contours = [])
@@ -196,5 +182,21 @@ export default class MeshContour
     const t = (((d20o11 - d21o10) - d20o21) + d21o20)/ det;
     let result = o1.add(d1.multiplyScalar(t)); //(d1 * t) + 
     return new Vector2(result.x, result.y);
+  }
+
+  clone()
+  {
+    let contour = new MeshContour();
+    contour.name = this.name;
+    contour.material = this.material;
+    contour.original_mesh = this.original_mesh;
+    contour.bounding_box = this.bounding_box.clone()
+
+    let edge_loops = [];
+    for(let i=0; i< this.edge_loops.length; i++)
+    {
+      edge_loops.push(this.edge_loops[i].clone());
+    }
+    return contour;
   }
 }

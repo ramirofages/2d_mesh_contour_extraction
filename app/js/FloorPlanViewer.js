@@ -54,14 +54,14 @@ class FloorPlanViewer
     this.render_loop.stop();
   }
 
-  export_scene()
+  export_scene(callback)
   {
-    this.application.export_scene();
+    this.application.export_scene(callback);
   }
 
   load_floor_plan(name, path)
   {
-    this.application.load_floor_plan(name, path);
+    return this.application.load_floor_plan(name, path);
   }
 }
 

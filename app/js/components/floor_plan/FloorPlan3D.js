@@ -4,28 +4,19 @@ import {MeshLambertMaterial} from 'three';
 import {ArrayUtilities} from 'ohzi-core';
 import {MeshBatcher} from 'ohzi-core';
 
-export default class FloorPlan extends Object3D
+export default class FloorPlan3D extends Object3D
 {
-  constructor({
-    units       = [],
-    floor_slabs = [],
-    walls       = [],
-    details     = []
-  })
+  constructor(floor_plan)
   {
     super();
-
-    this.units       = units;
-    this.floor_slabs = floor_slabs;
-    this.walls       = walls;
-    this.details     = details;
+    
 
     let meshes = [];
 
-    ArrayUtilities.merge_from_to(units, meshes)
-    ArrayUtilities.merge_from_to(floor_slabs, meshes)
-    ArrayUtilities.merge_from_to(walls, meshes)
-    ArrayUtilities.merge_from_to(details, meshes)
+    ArrayUtilities.merge_from_to(floor_plan.units, meshes)
+    ArrayUtilities.merge_from_to(floor_plan.floor_slabs, meshes)
+    ArrayUtilities.merge_from_to(floor_plan.walls, meshes)
+    ArrayUtilities.merge_from_to(floor_plan.details, meshes)
 
     for(let i=0; i< meshes.length; i++)
     {

@@ -9,6 +9,7 @@ import { Configuration } from 'ohzi-core';
 
 import DatGui from './components/DatGui';
 import SceneController from './components/SceneController';
+import FloorPlanManager from './components/FloorPlanManager';
 
 
 export default class MainApplication extends BaseApplication
@@ -19,6 +20,8 @@ export default class MainApplication extends BaseApplication
     this.normal_render_mode = new NormalRender();
 
     this.scene_controller.init();
+
+    this.floor_plan_manager = new FloorPlanManager();
 
     Graphics.set_state(new NormalRender());
 
@@ -40,6 +43,7 @@ export default class MainApplication extends BaseApplication
   update()
   {
     this.scene_controller.update();
+    this.floor_plan_manager.update();
   }
 
   export_scene(callback)
@@ -49,6 +53,17 @@ export default class MainApplication extends BaseApplication
 
   load_floor_plan(name, path)
   {
+    let promise_resolve = undefined;
+    let promise = new Promise((resolve, reject) =>{
+      promise_resolve = resolve;
+    });
+
+    let scene_controller = this.scene_controller;
+    this.floor_plan_manager.load_gltf(name, path, (floor_plan)=>{
+      scene_controller.add_floor_plan(floor_plan);
+      promise_resolve();
+    });
     
+    return promise;
   }
 }

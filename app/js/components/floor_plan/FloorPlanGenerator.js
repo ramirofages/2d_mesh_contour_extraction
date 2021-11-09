@@ -1,6 +1,6 @@
 import MeshContour from './MeshContour';
 import FloorPlan from './FloorPlan';
-export default class FloorPlanGenerator3D
+export default class FloorPlanGenerator
 {
   constructor()
   {
@@ -30,7 +30,7 @@ export default class FloorPlanGenerator3D
     let unit_contours = [];
     let slab_contours = [];
     let wall_contours = [];
-    let details_contours = [];
+    let details_meshes = [];
 
     let unit_neighboor_loops = [];
 
@@ -64,46 +64,44 @@ export default class FloorPlanGenerator3D
       }
       else
       {
-        details_contours.push(meshes[i])
+        details_meshes.push(meshes[i])
       }
-      
-
     }
 
-    let unit_meshes = [];
-    let floor_slab_meshes = [];
-    let wall_meshes = [];
-    let detail_meshes = [];
+    // let unit_meshes = [];
+    // let floor_slab_meshes = [];
+    // let wall_meshes = [];
+    // let detail_meshes = [];
 
-    for(let i=0; i< unit_contours.length; i++)
-    {
-      unit_contours[i].shrink_away_from_contours(0.2, unit_contours);
-      let extruded_mesh = unit_contours[i].get_extruded_mesh(1);
-      unit_meshes.push(extruded_mesh);
-    }
-    for(let i=0; i< slab_contours.length; i++)
-    {
-      let extruded_mesh = slab_contours[i].get_extruded_mesh(0.1);
-      floor_slab_meshes.push(extruded_mesh);
-    }
-    for(let i=0; i< wall_contours.length; i++)
-    {
-      let extruded_mesh = wall_contours[i].get_extruded_mesh(1.5);
-      wall_meshes.push(extruded_mesh);
-    }
+    // for(let i=0; i< unit_contours.length; i++)
+    // {
+    //   unit_contours[i].shrink_away_from_contours(0.2, unit_contours);
+    //   let extruded_mesh = unit_contours[i].get_extruded_mesh(1);
+    //   unit_meshes.push(extruded_mesh);
+    // }
+    // for(let i=0; i< slab_contours.length; i++)
+    // {
+    //   let extruded_mesh = slab_contours[i].get_extruded_mesh(0.1);
+    //   floor_slab_meshes.push(extruded_mesh);
+    // }
+    // for(let i=0; i< wall_contours.length; i++)
+    // {
+    //   let extruded_mesh = wall_contours[i].get_extruded_mesh(1.5);
+    //   wall_meshes.push(extruded_mesh);
+    // }
 
-    for(let i=0; i< details_contours.length; i++)
-    {
-      if(details_contours[i].geometry.index)
-        details_contours[i].geometry = details_contours[i].geometry.toNonIndexed();
+    // for(let i=0; i< details_meshes.length; i++)
+    // {
+    //   if(details_meshes[i].geometry.index)
+    //     details_meshes[i].geometry = details_meshes[i].geometry.toNonIndexed();
 
-      detail_meshes.push(details_contours[i]);
-    }
+    //   detail_meshes.push(details_meshes[i]);
+    // }
     return new FloorPlan({
-      units: unit_meshes,
-      floor_slabs: floor_slab_meshes,
-      walls: wall_meshes,
-      details: detail_meshes
+      unit_contours: unit_contours,
+      slab_contours: slab_contours,
+      wall_contours: wall_contours,
+      details_meshes: details_meshes
     });
   }
 }

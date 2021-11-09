@@ -17,8 +17,7 @@ export default class Loader extends BaseApplication
   load()
   {
     this.batch.add_json('config', 'data/config.json', 2000);
-    this.batch.add_gltf('plane', 'plane.glb', 1000);
-    this.batch.add_gltf('plan', 'plan.glb', 1000);
+    // this.batch.add_gltf('plan', 'plan.glb', 1000);
     this.batch.load(ResourceContainer);
   }
 

@@ -24,9 +24,8 @@ import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 
 import CameraController from '../camera_controller/CameraController';
-import MeshContour from './MeshContour';
-import EdgeLoop from './EdgeLoop';
-import FloorPlanGenerator3D from './FloorPlanGenerator3D';
+import FloorPlanGenerator from './floor_plan/FloorPlanGenerator';
+import FloorPlan3D from './floor_plan/FloorPlan3D';
 
 class SceneController
 {
@@ -47,15 +46,19 @@ class SceneController
     SceneManager.current.add(new AmbientLight());
     SceneManager.current.add(new DirectionalLight());
 
-    let floor_plan_generator = new FloorPlanGenerator3D();
+    // let floor_plan_generator = new FloorPlanGenerator();
 
-    let floor_plan_scene = ResourceContainer.get('plan').scene
+    // let floor_plan_scene = ResourceContainer.get('plan').scene
 
-    let floor_plan = floor_plan_generator.build_from_scene(floor_plan_scene);
+    // let floor_plan = floor_plan_generator.build_from_scene(floor_plan_scene);
+    // SceneManager.current.add(floor_plan);
+
+    // this.floor_plan = floor_plan;
+  }
+
+  add_floor_plan(floor_plan)
+  {
     SceneManager.current.add(floor_plan);
-
-    this.floor_plan = floor_plan;
-
   }
 
   intersects_line (p1a, p1b, p2a, p2b) {
@@ -116,7 +119,6 @@ class SceneController
     }
 
     exporter.parse(this.floor_plan, function ( gltf ) {
-
         callback(JSON.stringify(gltf));
 
       // new GLTFLoader().parse(JSON.stringify(gltf), '', (result)=>{

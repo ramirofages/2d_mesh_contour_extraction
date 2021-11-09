@@ -51,6 +51,7 @@ export default class EdgeLoop
   revert_winding()
   {
     let new_edges = [];
+    let new_raw_edges = [];
     for(let i = this.edges.length; i > 0; i--)
     {
       let e = this.edges[i-1];
@@ -58,9 +59,24 @@ export default class EdgeLoop
         from: e.to.clone(),
         to: e.from.clone()
       })
+      new_raw_edges.push({
+        from: e.to.clone(),
+        to: e.from.clone()
+      })
     }
     this.edges = new_edges;
+    this.raw_edges = new_raw_edges;
   }
+
+  reset()
+  {
+    for(let i=0; i< this.edges.length; i++)
+    {
+      this.edges[i].from.copy(this.raw_edges[i].from)
+      this.edges[i].to.copy(this.raw_edges[i].to)
+    }
+  }
+
   is_CCW()
   {
     let edges = this.edges;
@@ -221,6 +237,33 @@ export default class EdgeLoop
       else
         Debug.draw_line([from, to], "#FF0000");
     }
+  }
+
+  clone()
+  {
+    let edge_loop = new EdgeLoop()
+
+    let edges     = [];
+    let raw_edges = [];
+
+    for(let i=0; i< this.edges.length; i++)
+    {
+      let e = this.edges[i];
+      raw_edges.push({
+        from : e.from.clone(),
+        to   : e.to.clone()
+      })
+      edges.push({
+        from : e.from.clone(),
+        to   : e.to.clone()
+      })
+    }
+
+    edge_loop.edges     = edges;
+    edge_loop.raw_edges = raw_edges;
+    edge_loop.length    = this.length;
+
+    return edge_loop;
   }
 
 }
