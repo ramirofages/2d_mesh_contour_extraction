@@ -5,9 +5,10 @@ let floor_plan_viewer = new FloorPlanViewer();
 floor_plan_viewer.init();
 
 
-floor_plan_viewer.load_floor_plan("plan 1", 'plan.glb').then(()=>{
-  console.log("DONE LOADING");
-})
+// floor_plan_viewer.load_floor_plan_gltf("plan 1", 'plan.glb').then(()=>{
+// // floor_plan_viewer.load_floor_plan_gltf("plan 1", 'plan_simple.glb').then(()=>{
+//   console.log("DONE LOADING");
+// })
 
 
 DatGui.settings.export_gltf = ()=>{

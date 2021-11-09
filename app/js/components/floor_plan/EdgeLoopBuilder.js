@@ -7,6 +7,35 @@ export default class EdgeLoopBuilder
   {
 
   }
+  
+  get_loops_from_points(points)
+  {
+    let is_closed = false;
+    if(points[0].distanceTo(points[points.length-1]) < 0.00001)
+    {
+      is_closed = true;
+    }
+
+    let edges = [];
+
+    for(let i=0; i< points.length-1; i++)
+    {
+      let p0 = points[i];
+      let p1 = points[i+1];
+      edges.push({
+        from: p0.clone(),
+        to: p1.clone()
+      });
+    }
+    if(is_closed === false)
+    {
+      edges.push({
+        from: points[points.length-1],
+        to: points[0]
+      })
+    }
+    return this.build_loops_from_edges(edges);
+  }
 
   get_loops_from_point_pair_array(point_pairs)
   {
@@ -29,18 +58,9 @@ export default class EdgeLoopBuilder
       })
     }
 
-    let loops = this.build_loops_from_edges(edges);
-    
-    for(let i=0; i< loops.length; i++)
-    {
-      if(i===0)
-        loops[i].make_CCW();
-      else
-        loops[i].make_CW();
-    }
-
-    return loops;
+    return this.build_loops_from_edges(edges);
   }
+
 
   build_loops_from_edges(raw_edges)
   {
@@ -82,6 +102,14 @@ export default class EdgeLoopBuilder
     edge_loops.sort((a,b)=>{
       return b.length - a.length;
     })
+
+    for(let i=0; i< edge_loops.length; i++)
+    {
+      if(i===0)
+        edge_loops[i].make_CCW();
+      else
+        edge_loops[i].make_CW();
+    }
 
     return edge_loops;
   }

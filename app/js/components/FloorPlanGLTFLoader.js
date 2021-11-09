@@ -1,5 +1,6 @@
 import {ResourceBatch} from 'ohzi-core';
 import {ResourceContainer} from 'ohzi-core';
+import FloorPlanGenerator from './floor_plan/FloorPlanGenerator';
 
 export default class FloorPlanGLTFLoader
 {
@@ -31,6 +32,12 @@ export default class FloorPlanGLTFLoader
   get_scene()
   {
     return ResourceContainer.get(this.floor_plan_name).scene;
+  }
+
+  get_floor_plan()
+  {
+    let floor_plan_generator = new FloorPlanGenerator();
+    return floor_plan_generator.build_from_scene(this.floor_plan_name, this.get_scene());
   }
 
   notify_ready(floor_plan)

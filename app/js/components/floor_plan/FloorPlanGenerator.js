@@ -1,4 +1,4 @@
-import MeshContour from './MeshContour';
+import Contour from './Contour';
 import FloorPlan from './FloorPlan';
 export default class FloorPlanGenerator
 {
@@ -7,7 +7,7 @@ export default class FloorPlanGenerator
 
   }
 
-  build_from_scene(scene)
+  build_from_scene(name, scene)
   {
     let meshes = [];
 
@@ -17,9 +17,9 @@ export default class FloorPlanGenerator
         meshes.push(child);
       }
     });
-    return this.build(meshes);
+    return this.build(name, meshes);
   }
-  build(meshes)
+  build(name, meshes)
   {
     let regex_units = new RegExp('^Units*')
     let regex_slabs = new RegExp('^FloorSlabs*')
@@ -40,26 +40,28 @@ export default class FloorPlanGenerator
          regex_slabs.test(meshes[i].parent.name) === true || 
          regex_walls.test(meshes[i].parent.name) === true)
       {
-        let mesh_contour = new MeshContour(meshes[i]);
-        if(mesh_contour.edge_loops.length > 0)
+        let mesh = meshes[i];
+        let contour = new Contour(mesh.name, "#"+mesh.material.color.getHexString());
+        contour.set_from_mesh(mesh)
+        if(contour.edge_loops.length > 0)
         { 
-          if(regex_units.test(meshes[i].parent.name) === true)
+          if(regex_units.test(mesh.parent.name) === true)
           {
-            unit_contours.push(mesh_contour);
-            unit_neighboor_loops.push(mesh_contour.edge_loops[0]);
+            unit_contours.push(contour);
+            unit_neighboor_loops.push(contour.edge_loops[0]);
           }
-          if(regex_slabs.test(meshes[i].parent.name) === true)
+          if(regex_slabs.test(mesh.parent.name) === true)
           {
-            slab_contours.push(mesh_contour);
+            slab_contours.push(contour);
           }
-          if(regex_walls.test(meshes[i].parent.name) === true)
+          if(regex_walls.test(mesh.parent.name) === true)
           {
-            wall_contours.push(mesh_contour);
+            wall_contours.push(contour);
           }
         }
         else
         {
-          console.error("mesh does not contain enough edges ", meshes[i], mesh_contour)
+          console.error("mesh does not contain enough edges ", mesh, contour)
         }
       }
       else
@@ -68,36 +70,7 @@ export default class FloorPlanGenerator
       }
     }
 
-    // let unit_meshes = [];
-    // let floor_slab_meshes = [];
-    // let wall_meshes = [];
-    // let detail_meshes = [];
-
-    // for(let i=0; i< unit_contours.length; i++)
-    // {
-    //   unit_contours[i].shrink_away_from_contours(0.2, unit_contours);
-    //   let extruded_mesh = unit_contours[i].get_extruded_mesh(1);
-    //   unit_meshes.push(extruded_mesh);
-    // }
-    // for(let i=0; i< slab_contours.length; i++)
-    // {
-    //   let extruded_mesh = slab_contours[i].get_extruded_mesh(0.1);
-    //   floor_slab_meshes.push(extruded_mesh);
-    // }
-    // for(let i=0; i< wall_contours.length; i++)
-    // {
-    //   let extruded_mesh = wall_contours[i].get_extruded_mesh(1.5);
-    //   wall_meshes.push(extruded_mesh);
-    // }
-
-    // for(let i=0; i< details_meshes.length; i++)
-    // {
-    //   if(details_meshes[i].geometry.index)
-    //     details_meshes[i].geometry = details_meshes[i].geometry.toNonIndexed();
-
-    //   detail_meshes.push(details_meshes[i]);
-    // }
-    return new FloorPlan({
+    return new FloorPlan(name, {
       unit_contours: unit_contours,
       slab_contours: slab_contours,
       wall_contours: wall_contours,

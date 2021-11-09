@@ -51,7 +51,7 @@ export default class MainApplication extends BaseApplication
     return this.scene_controller.export_scene(callback);
   }
 
-  load_floor_plan(name, path)
+  load_floor_plan_gltf(name, path)
   {
     let promise_resolve = undefined;
     let promise = new Promise((resolve, reject) =>{
@@ -65,5 +65,10 @@ export default class MainApplication extends BaseApplication
     });
     
     return promise;
+  }
+
+  process_and_export_floor_plan(name)
+  {
+    
   }
 }

@@ -39,6 +39,7 @@ class DatGUI
     this.dat_gui.add(this.settings, 'floor_slab_extrude_amount', 0, 2);
     this.dat_gui.add(this.settings, 'wall_extrude_amount', 0, 2);
     this.dat_gui.add(this.settings, 'rebuild');
+    this.dat_gui.add(this.settings, 'export_gltf');
     this.dat_gui.width = 400;
   }
 }

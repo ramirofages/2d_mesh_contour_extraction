@@ -4,25 +4,21 @@ import {MeshLambertMaterial} from 'three'
 import {Color} from 'three'
 import {Path} from 'three'
 import {Box3} from 'three'
+import {Color} from 'three'
 import {Debug} from 'ohzi-core'
 import EdgeLoopBuilder from './EdgeLoopBuilder';
+import EdgeLoop from './EdgeLoop';
 
-export default class MeshContour
+export default class Contour
 {
-  constructor(mesh)
+  constructor(name, color)
   {
-    this.name          = "";
-    this.material      = undefined;
-    this.original_mesh = undefined;
+    this.name  = name;
+    this.color = color;
 
     this.bounding_box = new Box3();
 
     this.edge_loops = [];
-
-    if(mesh)
-    {
-      this.set_from_mesh(mesh);
-    }
   }
 
   reset()
@@ -35,8 +31,7 @@ export default class MeshContour
   set_from_mesh(mesh)
   {
     this.name          = mesh.name;
-    this.material      = mesh.material;
-    this.original_mesh = mesh;
+    this.color         = mesh.material.color;
     const edges_geo    = new EdgesGeometry( mesh.geometry );
     let points         = edges_geo.attributes.position.array;
 
@@ -45,6 +40,26 @@ export default class MeshContour
 
     let edge_loop_builder = new EdgeLoopBuilder();
     this.edge_loops = edge_loop_builder.get_loops_from_point_pair_array(points);
+  }
+
+  set_from_points(points)
+  {
+    let edge_loop_builder = new EdgeLoopBuilder();
+    this.edge_loops = edge_loop_builder.get_loops_from_points(points)
+    this.bounding_box.setFromPoints(points);
+  }
+
+  set_from_edge_loop(edge_loop)
+  {
+    this.edge_loops = [edge_loop];
+
+    let points = [];
+    for(let i=0; i< edge_loop.edges.length; i++)
+    {
+      points.push(edge_loop.edges[i].from);
+    }
+    points.push(edge_loop.edges[edge_loop.edges.length-1].to);
+    this.bounding_box.setFromPoints(points);
   }
 
   shrink_away_from_contours(offset_scale = 0, contours = [])
@@ -76,13 +91,11 @@ export default class MeshContour
     };
     let geometry = new ExtrudeGeometry( this.get_shape(), extrudeSettings );
     geometry.rotateX(Math.PI/2)
-    // geometry.translate(0, depth, 0);
-    geometry.translate(0, depth + this.bounding_box.min.y, 0);
+    geometry.translate(0, depth, 0);
+    // geometry.translate(0, depth + this.bounding_box.min.y, 0);
 
     let mat = new MeshLambertMaterial({color: "#FF0000"})
-    mat.color = this.material.color;
-
-    let material = new MeshBasicMaterial( { color: 0x00ff00 } );
+    mat.color.set(this.color);
 
     let mesh = new Mesh( geometry, mat );
     mesh.name = this.name;
@@ -92,7 +105,6 @@ export default class MeshContour
   get_shape()
   {
     let sorted_edge_loops = this.edge_loops;
-
     let sorted_edges = sorted_edge_loops[0].edges;
     let shape = new Shape();
 
@@ -147,6 +159,18 @@ export default class MeshContour
     }
   }
 
+  split(point_a, point_b)
+  {
+    let edge_loops = this.edge_loops[0].split(point_a, point_b);
+    let contours = [];
+    for (let i = 0; i < edge_loops.length; i++) 
+    {
+      let contour = new Contour(this.name+"_"+i, this.color);
+      contour.set_from_edge_loop(edge_loops[i]);
+      contours.push(contour);
+    }
+    return contours;
+  }
   intersects_line(p0_2D, p1_2D)
   {
 
@@ -186,10 +210,7 @@ export default class MeshContour
 
   clone()
   {
-    let contour = new MeshContour();
-    contour.name = this.name;
-    contour.material = this.material;
-    contour.original_mesh = this.original_mesh;
+    let contour = new Contour(this.name, this.color);
     contour.bounding_box = this.bounding_box.clone()
 
     let edge_loops = [];

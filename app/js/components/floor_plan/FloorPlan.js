@@ -3,25 +3,44 @@ import {BufferAttribute} from 'three';
 import {MeshLambertMaterial} from 'three';
 import {ArrayUtilities} from 'ohzi-core';
 import {MeshBatcher} from 'ohzi-core';
+import FloorPlanForExport from './FloorPlanForExport';
+import Splitter from './operators/Splitter';
 
 export default class FloorPlan extends Object3D
 {
-  constructor({
-    unit_contours  = [],
-    slab_contours  = [],
-    wall_contours  = [],
-    details_meshes = []
-  })
+  constructor(
+    name,
+    {
+      unit_contours  = [],
+      slab_contours  = [],
+      wall_contours  = [],
+      details_meshes = []
+    }
+  )
   {
     super();
 
+    this.name = name;
     this.unit_contours    = unit_contours;
     this.slab_contours    = slab_contours;
     this.wall_contours    = wall_contours;
     this.details_meshes   = details_meshes;
 
+    let contours = [];
+    ArrayUtilities.merge_from_to(unit_contours, contours)
+    ArrayUtilities.merge_from_to(slab_contours, contours)
+    ArrayUtilities.merge_from_to(wall_contours, contours)
+    ArrayUtilities.merge_from_to(details_meshes, contours)
 
-    this.generate_2D_mesh(0.2, 1, 0.1, 1.5);
+    this.contours = contours.reduce((map, obj) => {
+        map[obj.name] = obj;
+        return map;
+    }, {});
+
+
+
+
+    this.generate_2D_mesh();
 
   }
 
@@ -39,13 +58,16 @@ export default class FloorPlan extends Object3D
   {
     if(this.children.length > 0)
     {
-      let root = this.children[0];
-      for(let i=0; i< root.children.length; i++)
+      while(this.children.length > 0)
       {
-        root.children[i].geometry.dispose();
-        root.children[i].material.dispose();
+        let root = this.children[0];
+        for(let i=0; i< root.children.length; i++)
+        {
+          root.children[i].geometry.dispose();
+          root.children[i].material.dispose();
+        }
+        this.remove(this.children[0]);
       }
-      this.remove(this.children[0]);
     }
 
     let root = new Object3D();
@@ -110,5 +132,37 @@ export default class FloorPlan extends Object3D
       wall_contours: wall_contours,
       details_meshes: this.details_meshes
     })
+  }
+
+  split_contour(mesh_name, point_a, point_b)
+  {
+    let contour = this.contours[mesh_name];
+    let new_contours = new Splitter(contour).split(point_a, point_b);
+
+    if(this.unit_contours.contains(contour))
+    {
+      ArrayUtilities.remove_elem(this.unit_contours, contour)
+      this.unit_contours.push(...new_contours);
+    }
+    if(this.slab_contours.contains(contour))
+    {
+      ArrayUtilities.remove_elem(this.slab_contours, contour)
+      this.slab_contours.push(...new_contours);
+
+    }
+    if(this.wall_contours.contains(contour))
+    {
+      ArrayUtilities.remove_elem(this.wall_contours, contour)
+      this.wall_contours.push(...new_contours);
+    }
+
+    this.generate_mesh(0.2, 1, 0.1, 1.5);
+  }
+
+
+  build_for_export()
+  {
+    let floor_plan_for_export = new FloorPlanForExport(this.children[0]);
+
   }
 }

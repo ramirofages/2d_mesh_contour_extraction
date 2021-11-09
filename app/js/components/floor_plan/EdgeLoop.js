@@ -6,13 +6,24 @@ export default class EdgeLoop
 {
   constructor(edges, length)
   {
-    this.raw_edges = [];
+    this.original_edges = [];
+    this.edges = [];
+
+    if(edges)
+    {
+      this.set_edges(edges, length);
+    }
+  }
+
+  set_edges(edges, length)
+  {
+    this.original_edges = [];
     this.edges = [];
 
     for(let i=0; i<edges.length; i++)
     {
       let e = edges[i];
-      this.raw_edges.push({
+      this.original_edges.push({
         from: e.from.clone(),
         to: e.to.clone()
       })
@@ -21,6 +32,7 @@ export default class EdgeLoop
         to: e.to.clone()
       })
     }
+
     this.length = length;
 
     if(length === undefined)
@@ -51,7 +63,7 @@ export default class EdgeLoop
   revert_winding()
   {
     let new_edges = [];
-    let new_raw_edges = [];
+    let new_original_edges = [];
     for(let i = this.edges.length; i > 0; i--)
     {
       let e = this.edges[i-1];
@@ -59,21 +71,21 @@ export default class EdgeLoop
         from: e.to.clone(),
         to: e.from.clone()
       })
-      new_raw_edges.push({
+      new_original_edges.push({
         from: e.to.clone(),
         to: e.from.clone()
       })
     }
     this.edges = new_edges;
-    this.raw_edges = new_raw_edges;
+    this.original_edges = new_original_edges;
   }
 
   reset()
   {
     for(let i=0; i< this.edges.length; i++)
     {
-      this.edges[i].from.copy(this.raw_edges[i].from)
-      this.edges[i].to.copy(this.raw_edges[i].to)
+      this.edges[i].from.copy(this.original_edges[i].from)
+      this.edges[i].to.copy(  this.original_edges[i].to)
     }
   }
 
@@ -144,7 +156,7 @@ export default class EdgeLoop
     for(let i=0; i< neighbour_loops.length; i++)
     {
       let n = neighbour_loops[i];
-      if(n !== this && this.is_edge_close_to_neighboor(edge, n.raw_edges))
+      if(n !== this && this.is_edge_close_to_neighboor(edge, n.original_edges))
         return true;
     }
     return false;
@@ -202,6 +214,11 @@ export default class EdgeLoop
 
   }
 
+  split(point_a, point_b)
+  {
+    // implementa aca
+    return [ new EdgeLoop(this.original_edges) ]
+  }
 
 
   intersect_lines(p1a, p1b, p2a, p2b) {
@@ -244,12 +261,12 @@ export default class EdgeLoop
     let edge_loop = new EdgeLoop()
 
     let edges     = [];
-    let raw_edges = [];
+    let original_edges = [];
 
     for(let i=0; i< this.edges.length; i++)
     {
       let e = this.edges[i];
-      raw_edges.push({
+      original_edges.push({
         from : e.from.clone(),
         to   : e.to.clone()
       })
@@ -259,9 +276,9 @@ export default class EdgeLoop
       })
     }
 
-    edge_loop.edges     = edges;
-    edge_loop.raw_edges = raw_edges;
-    edge_loop.length    = this.length;
+    edge_loop.edges          = edges;
+    edge_loop.original_edges = original_edges;
+    edge_loop.length         = this.length;
 
     return edge_loop;
   }

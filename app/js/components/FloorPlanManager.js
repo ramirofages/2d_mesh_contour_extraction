@@ -29,9 +29,7 @@ export default class FloorPlanManager
       let batch = this.load_batches[i];
       if(batch.is_ready())
       {
-        let floor_plan_generator = new FloorPlanGenerator();
-
-        let floor_plan = floor_plan_generator.build_from_scene(batch.get_scene());
+        let floor_plan = batch.get_floor_plan();
         this.floor_plans.push(floor_plan);
         this.load_batches.splice(i, 1);
         

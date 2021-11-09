@@ -59,9 +59,9 @@ class FloorPlanViewer
     this.application.export_scene(callback);
   }
 
-  load_floor_plan(name, path)
+  load_floor_plan_gltf(name, path)
   {
-    return this.application.load_floor_plan(name, path);
+    return this.application.load_floor_plan_gltf(name, path);
   }
 }
 

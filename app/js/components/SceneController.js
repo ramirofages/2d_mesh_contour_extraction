@@ -11,8 +11,8 @@ import { MeshBatcher } from 'ohzi-core';
 import { Color } from 'three';
 import { SphereBufferGeometry } from 'three';
 import { Shape } from 'three';
-import { Vector3 } from 'three';
 import { Vector2 } from 'three';
+import { Vector3 } from 'three';
 import { PlaneBufferGeometry } from 'three';
 import { EdgesGeometry } from 'three';
 import { Mesh, MeshBasicMaterial, ExtrudeGeometry } from 'three';
@@ -25,7 +25,7 @@ import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 import CameraController from '../camera_controller/CameraController';
 import FloorPlanGenerator from './floor_plan/FloorPlanGenerator';
-import FloorPlan3D from './floor_plan/FloorPlan3D';
+import Contour from './floor_plan/Contour';
 
 class SceneController
 {
@@ -39,46 +39,45 @@ class SceneController
     this.__init_camera();
     this.__init_camera_controller();
 
-    // Debug.draw_sphere();
-    // Debug.draw_axis();
+    Debug.draw_axis();
     SceneManager.current.add(new Grid());
 
     SceneManager.current.add(new AmbientLight());
     SceneManager.current.add(new DirectionalLight());
 
-    // let floor_plan_generator = new FloorPlanGenerator();
+    this.floor_plan = undefined;
 
-    // let floor_plan_scene = ResourceContainer.get('plan').scene
+    let points = [];
+    points.push(new Vector2(-2, 2));
+    points.push(new Vector2(2, 2));
+    points.push(new Vector2(2, -2));
+    points.push(new Vector2(-2, -2));
 
-    // let floor_plan = floor_plan_generator.build_from_scene(floor_plan_scene);
-    // SceneManager.current.add(floor_plan);
+    let contour = new Contour("asd", "#FF0000");
+    contour.set_from_points(points);
 
-    // this.floor_plan = floor_plan;
+    let point_a = new Vector2(0, 4);
+    let point_b = new Vector2(0, -4);
+
+    Debug.draw_sphere(new Vector3(point_a.x, 0, point_a.y), 0.2, "#00FF00");
+    Debug.draw_sphere(new Vector3(point_b.x, 0, point_b.y), 0.2, "#00FF00");
+
+    let contours = contour.split(point_a, point_b);
+
+    for(let i=0; i< contours.length; i++)
+    {
+      contours[i].shrink_away_from_contours(0.2, contours);
+      SceneManager.current.add(contours[i].get_extruded_mesh(0.5));
+    }
+
   }
 
   add_floor_plan(floor_plan)
   {
+    this.floor_plan = floor_plan
     SceneManager.current.add(floor_plan);
   }
 
-  intersects_line (p1a, p1b, p2a, p2b) {
-    const o1 = new Vector2(p1a.x, p1a.z);
-    const o2 = new Vector2(p2a.x, p2a.z);
-    const d1 = o1.clone().sub(new Vector2(p1b.x, p1b.z));
-    const d2 = o2.clone().sub(new Vector2(p2b.x, p2b.z));
-
-    const det = (d1.x * d2.y - d2.x * d1.y)
-    if ( Math.abs(det) < 1e-12 ) {
-      return undefined
-    }
-    const d20o11 = d2.x * o1.y
-    const d21o10 = d2.y * o1.x
-    const d20o21 = d2.x * o2.y
-    const d21o20 = d2.y * o2.x
-    const t = (((d20o11 - d21o10) - d20o21) + d21o20)/ det;
-    let result = o1.add(d1.multiplyScalar(t)); //(d1 * t) + 
-    return new Vector2(result.x, result.y);
-  }
 
 
   update()
@@ -106,7 +105,7 @@ class SceneController
     this.camera_controller.min_zoom = 1;
     this.camera_controller.max_zoom = 100;
     this.camera_controller.reference_zoom = 5;
-    // this.camera_controller.reference_position.set(-30, 0, -10);
+    // this.camera_controller.reference_position.set(-20, 0, -10);
     this.camera_controller.set_rotation(10, 0);
   }
 
